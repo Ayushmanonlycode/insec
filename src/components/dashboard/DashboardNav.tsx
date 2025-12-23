@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Logo from '@/components/Logo';
+import Logo from '@/components/common/Logo';
 import { Search, Bell } from 'lucide-react';
 
 export function DashboardNav() {

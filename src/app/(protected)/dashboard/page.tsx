@@ -64,10 +64,25 @@ export default function DashboardPage() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00FFB2] bg-[#00FFB2]/10 px-3 py-1 rounded-sm border border-[#00FFB2]/20">Command Center</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Session ID: 8X-929</span>
                         </div>
                         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">
-                            Operational <br /> <span className="text-white/20">Dashboard</span>
+                            Welcome Back, <br /> <span className="text-white/20">John Doe</span>
                         </h1>
+                        <div className="flex flex-wrap gap-6 text-[10px] font-bold uppercase tracking-widest text-white/40 pt-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#00FFB2]"></div>
+                                <span>Security Architect</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                                <span>Last Login: Today, 14:02 UTC</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                                <span>Clearance Level 4</span>
+                            </div>
+                        </div>
                     </div>
 
                     <button

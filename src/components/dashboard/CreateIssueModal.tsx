@@ -40,13 +40,24 @@ export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModal
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1">Title</label>
+                        <input
+                            required
+                            type="text"
+                            placeholder="Brief Directive Title"
+                            className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold tracking-widest text-white focus:outline-none focus:border-[#00FFB2] placeholder:text-white/30"
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Type</label>
+                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1">Type</label>
                             <select
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value as IssueType })}
-                                className="w-full bg-black border border-white/10 rounded-sm py-3 px-4 text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-[#00FFB2]/50 appearance-none cursor-pointer"
+                                className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold uppercase tracking-widest text-white focus:outline-none focus:border-[#00FFB2] appearance-none cursor-pointer"
                             >
                                 <option>Cloud Security</option>
                                 <option>Redteam Assessment</option>
@@ -54,37 +65,26 @@ export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModal
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Priority</label>
+                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1">Status</label>
                             <select
-                                value={formData.priority}
-                                onChange={(e) => setFormData({ ...formData, priority: e.target.value as IssuePriority })}
-                                className="w-full bg-black border border-white/10 rounded-sm py-3 px-4 text-xs font-bold uppercase tracking-widest focus:outline-none focus:border-[#00FFB2]/50 appearance-none cursor-pointer"
+                                value={formData.status}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                                className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold uppercase tracking-widest text-white focus:outline-none focus:border-[#00FFB2] appearance-none cursor-pointer"
                             >
-                                <option>LOW</option>
-                                <option>MEDIUM</option>
-                                <option>HIGH</option>
-                                <option>CRITICAL</option>
+                                <option>OPEN</option>
+                                <option>IN PROGRESS</option>
+                                <option>RESOLVED</option>
+                                <option>CLOSED</option>
                             </select>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Title</label>
-                        <input
-                            required
-                            type="text"
-                            placeholder="Brief Directive Title"
-                            className="w-full bg-black border border-white/10 rounded-sm py-3 px-4 text-xs font-bold tracking-widest focus:outline-none focus:border-[#00FFB2]/50 placeholder:text-white/5"
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Detailed Log</label>
+                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1">Detailed Log</label>
                         <textarea
                             rows={4}
-                            placeholder="Describe the technical findings and recommended mitigation..."
-                            className="w-full bg-black border border-white/10 rounded-sm py-3 px-4 text-xs font-medium focus:outline-none focus:border-[#00FFB2]/50 placeholder:text-white/5 resize-none"
+                            placeholder="Describe the technical findings..."
+                            className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-medium text-white focus:outline-none focus:border-[#00FFB2] placeholder:text-white/30 resize-none"
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
                     </div>

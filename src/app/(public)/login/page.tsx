@@ -1,10 +1,18 @@
 'use client';
 
 import React from 'react';
-import Logo from '@/components/Logo';
+import Logo from '@/components/common/Logo';
 import { ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+    const router = useRouter();
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        router.push('/welcome');
+    };
+
     return (
         <main className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative overflow-hidden">
             {/* Structural Background Lines - Matching Hero Aesthetic */}
@@ -25,7 +33,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleLogin}>
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 ml-1">Email</label>
                             <input
@@ -47,7 +55,7 @@ export default function LoginPage() {
                             />
                         </div>
 
-                        <button className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 mt-2">
+                        <button type="submit" className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 mt-2">
                             Login
                             <ArrowRight size={14} strokeWidth={3} />
                         </button>
@@ -55,7 +63,7 @@ export default function LoginPage() {
 
                     <div className="pt-6 border-t border-white/5">
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 text-center">
-                            New operator? <a href="/signup" className="text-white hover:text-[#00FFB2] transition-colors underline underline-offset-4 decoration-white/10">Sign Up</a>
+                            New operator? <a href="/register" className="text-white hover:text-[#00FFB2] transition-colors underline underline-offset-4 decoration-white/10">Sign Up</a>
                         </p>
                     </div>
                 </div>

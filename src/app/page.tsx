@@ -1,8 +1,8 @@
-import HeroSection from "@/components/ui/hero-section";
-import { Case } from "@/components/ui/cases-with-infinite-scroll";
-import SolutionsGrid from "@/components/ui/solutions-grid";
-import ComplianceSection from "@/components/ui/compliance-section";
-import Footer from "@/components/ui/footer";
+import HeroSection from "@/components/landing/HeroSection";
+import { Case } from "@/components/landing/CasesInfiniteScroll";
+import SolutionsGrid from "@/components/landing/SolutionsGrid";
+import ComplianceSection from "@/components/landing/ComplianceSection";
+import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (

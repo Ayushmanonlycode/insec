@@ -1,10 +1,18 @@
 'use client';
 
 import React from 'react';
-import Logo from '@/components/Logo';
+import Logo from '@/components/common/Logo';
 import { ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function SignupPage() {
+    const router = useRouter();
+
+    const handleSignup = (e: React.FormEvent) => {
+        e.preventDefault();
+        router.push('/welcome');
+    };
+
     return (
         <main className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative overflow-hidden">
             {/* Structural Background Lines - Matching Hero Aesthetic */}
@@ -18,7 +26,7 @@ export default function SignupPage() {
 
             {/* Absolute Logo - Restored */}
             <div className="absolute top-8 left-8 md:top-12 md:left-12 z-20">
-                
+
             </div>
 
             <div className="relative z-10 w-full max-w-[400px] flex flex-col justify-center min-h-[calc(100vh-4rem)] py-8">
@@ -29,7 +37,7 @@ export default function SignupPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSignup}>
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 ml-1">Full Name</label>
                             <input
@@ -69,7 +77,7 @@ export default function SignupPage() {
                             </label>
                         </div>
 
-                        <button className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 mt-2">
+                        <button type="submit" className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 mt-2">
                             Establish Account
                             <ArrowRight size={14} strokeWidth={3} />
                         </button>

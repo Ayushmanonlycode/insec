@@ -6,7 +6,7 @@ import {
     CarouselApi,
     CarouselContent,
     CarouselItem,
-} from "@/components/ui/carousel";
+} from "@/components/landing/Carousel";
 
 interface Logo {
     id: string;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ArrowRight, ChevronRight } from 'lucide-react';
-import Navbar from '@/components/ui/navbar';
+import Navbar from '@/components/layout/Navbar';
 
 export default function HeroSection() {
     return (
@@ -41,7 +41,7 @@ export default function HeroSection() {
 
                 <Navbar />
 
-                
+
                 <button onClick={() => window.location.href = "https://www.getastra.com/blog/compliance/nist/iso-27001-vs-nist/"} className="relative z-10 flex items-center gap-3 border border-white/20 rounded-full w-max mx-auto px-6 py-2 mt-40 md:mt-32 bg-black hover:bg-white hover:text-black transition-all group cursor-pointer">
                     <span className="text-[10px] font-black uppercase tracking-widest border border-current px-2 py-0.5 rounded-sm">Enterprise Grade</span>
                     <span className="font-medium text-xs md:text-sm">Aligned with OWASP, NIST, SANS, and ISO 27001</span>

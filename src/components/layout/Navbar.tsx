@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Logo from '@/components/Logo';
+import Logo from '@/components/common/Logo';
 import { cn } from '@/lib/utils';
 
 export default function Navbar() {
@@ -48,7 +48,7 @@ export default function Navbar() {
                             Sign In
                         </a>
                         <a
-                            href="/signup"
+                            href="/register"
                             className={cn(
                                 "bg-white text-black font-black uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] flex items-center justify-center",
                                 scrolled
