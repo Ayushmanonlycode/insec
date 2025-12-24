@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛡️ ApniSec - Secure Intelligence Platform
 
-## Getting Started
+**ApniSec** is a cutting-edge, cybersecurity-themed dashboard built for high-stakes intelligence management. It features a Next.js 15 App Router architecture, robust OOP backend, and a premium "Command Center" UI.
 
-First, run the development server:
+## 🌟 Key Features
 
+- **Cybersecurity Aesthetic**: Immersive dark mode, neon accents, and scanline effects.
+- **Secure Authentication**: JWT-based auth with HTTP-Only cookies and automatic refresh rotation.
+- **Role-Based Access**: Granular control over Incidents and Directive visibility.
+- **Performance**: In-memory caching for issues and blogs.
+- **Interactive UI**: Animated `SuccessModals` and dynamic data visualization.
+
+---
+
+## ⚡ Quick Start
+
+### 1. Prerequisites
+- Node.js 18+
+- PostgreSQL Database (Local or Neon/Supabase)
+
+### 2. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/your-repo/apnisec.git
+cd apnisec
+
+# Install dependencies
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Environment Setup
+Create a `.env` file in the root directory:
+```env
+# Database
+DATABASE_URL="postgres://user:pass@host:5432/db_name"
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Authentication (Generate robust secrets!)
+JWT_ACCESS_SECRET="complex_random_string_A"
+JWT_REFRESH_SECRET="complex_random_string_B"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-## Learn More
+# Email (Optional)
+RESEND_API_KEY="re_..."
+EMAIL_FROM="onboarding@resend.dev"
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Database Migration
+Push the Drizzle schema to your database:
+```bash
+npx drizzle-kit push
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 5. Run Development Server
+```bash
+npm run dev
+```
+Visit `http://localhost:3000` to access the Command Center.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📚 Documentation Map
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **[Frontend Guide](src/app/README.md)**: UI Architecture, Components, and Design System.
+- **[Backend Guide](src/backend/README.md)**: Services, Repositories, API, and Security.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🚀 Deployment Guide
+
+### Option 1: Vercel (Recommended)
+
+1.  **Push to GitHub**: Ensure your code is in a remote repository.
+2.  **Import Project**: Go to [Vercel](https://vercel.com), "Add New Project", and select your repo.
+3.  **Environment Variables**:
+    - Copy all values from your local `.env`.
+    - **Important**: Generate *new, strong* secrets for `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` in production.
+4.  **Build Settings**:
+    - Framework Preset: `Next.js`
+    - Build Command: `next build`
+    - Install Command: `npm install`
+5.  **Deploy**: Click "Deploy". Vercel will build the monolithic app (Frontend + API Routes).
+
+### Option 2: Self-Hosted (Docker/Node)
+
+1.  **Build**:
+    ```bash
+    npm run build
+    ```
+2.  **Start**:
+    ```bash
+    npm start
+    ```
+    Ensure your process manager (PM2, Docker) exposes port 3000.
+
+### Database Notes (Supabase/Neon)
+- Ensure your production database allows connections from Vercel IPs (0.0.0.0/0 or specific allowlists).
+- Use the **Transaction Pooler** URL (port 6543) for serverless environments (like Vercel) if available, or the Session URL (port 5432) for long-lived servers.
+
+---
+
+## 🔒 Security Best Practices
+
+- **Secrets**: Never commit `.env` files.
+- **Rotation**: Rotate `JWT_REFRESH_SECRET` periodically if compromise is suspected.
+- **HTTPS**: Always serve over HTTPS in production (Vercel does this automatically).
