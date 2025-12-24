@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     ShieldAlert,
     Search,
@@ -17,6 +18,7 @@ import Footer from '@/components/layout/Footer';
 import { useEffect } from 'react';
 
 export default function DashboardPage() {
+    const router = useRouter();
     const [user, setUser] = useState<{ id: string; fullName: string | null } | null>(null);
     const [issues, setIssues] = useState<Issue[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -49,13 +51,17 @@ export default function DashboardPage() {
                 if (res.ok) {
                     const data = await res.json();
                     setUser(data.data);
+                } else if (res.status === 401) {
+                    // Redirect to login if unauthorized
+                    router.push('/login');
                 }
             } catch (err) {
                 console.error('Failed to fetch user', err);
+                router.push('/login');
             }
         };
         fetchUser();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         fetchIssues();

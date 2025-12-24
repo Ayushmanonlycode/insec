@@ -9,7 +9,10 @@ import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
 import Footer from '@/components/layout/Footer';
 
+import { useRouter } from 'next/navigation';
+
 export default function BlogsPage() {
+    const router = useRouter();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -40,14 +43,17 @@ export default function BlogsPage() {
                 if (res.ok) {
                     const data = await res.json();
                     setUser(data.data);
+                } else if (res.status === 401) {
+                    router.push('/login');
                 }
             } catch (err) {
                 console.error('Failed to fetch user', err);
+                router.push('/login');
             }
         };
         fetchUser();
         fetchBlogs();
-    }, []);
+    }, [router]);
 
     const handleSubmitBlog = async (blogData: { title: string; content: string }) => {
         const isEdit = !!editingBlog;

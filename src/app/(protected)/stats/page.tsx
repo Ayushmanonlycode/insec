@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { BarChart3, TrendingUp, Shield, Activity, Lock, Globe, Server } from 'lucide-react';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import Footer from '@/components/layout/Footer';
@@ -14,6 +15,7 @@ let cachedStats: any = null;
 let cachedUser: any = null;
 
 export default function StatsPage() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(!cachedStats);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -29,6 +31,10 @@ export default function StatsPage() {
                     const data = await res.json();
                     setStats(data.data);
                     cachedStats = data.data; // Update cache
+                } else if (res.status === 401) {
+                    cachedStats = null;
+                    cachedUser = null;
+                    router.push('/login');
                 }
             } catch (err) {
                 console.error('Failed to fetch stats', err);
@@ -45,15 +51,20 @@ export default function StatsPage() {
                     const data = await res.json();
                     setUser(data.data);
                     cachedUser = data.data; // Update cache
+                } else if (res.status === 401) {
+                    cachedStats = null;
+                    cachedUser = null;
+                    router.push('/login');
                 }
             } catch (err) {
                 console.error('Failed to fetch user', err);
+                router.push('/login');
             }
         };
 
         fetchUser();
         fetchStats();
-    }, []);
+    }, [router]);
 
     if (isInitialLoad) {
         return (
