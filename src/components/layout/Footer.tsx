@@ -44,7 +44,42 @@ const footerLinks = [
     }
 ];
 
-export default function Footer() {
+interface FooterProps {
+    variant?: 'default' | 'minimal';
+}
+
+export default function Footer({ variant = 'default' }: FooterProps) {
+    if (variant === 'minimal') {
+        return (
+            <footer className="w-full border-t border-white/5 bg-zinc-950/40 py-4 px-6 md:px-12 flex-shrink-0 mt-auto">
+                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-6">
+                        <div className="text-[10px] font-medium text-white/20 uppercase tracking-widest">
+                            © 2025 APNI SEC INC.
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#00FFB2]/60">System Status: Operational</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-6 text-white/40">
+                        <div className="text-[9px] font-medium uppercase tracking-[0.2em]">
+                            Command Center v2.4.0
+                        </div>
+                        <a href="https://x.com/apnisec" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-all">
+                            <Twitter size={14} />
+                        </a>
+                        <a href="https://www.linkedin.com/company/apnisec/" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-all">
+                            <Linkedin size={14} />
+                        </a>
+                        <a href="https://www.youtube.com/@apnisec" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-all">
+                            <Youtube size={14} />
+                        </a>
+                    </div>
+                </div>
+            </footer>
+        );
+    }
+
     return (
         <footer className="bg-black border-t border-white/10 pt-24 pb-12 px-6 md:px-16 lg:px-24 xl:px-32">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8 mb-20">

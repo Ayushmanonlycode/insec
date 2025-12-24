@@ -1,0 +1,69 @@
+import { NextRequest } from 'next/server';
+import { BaseHandler } from '../BaseHandler';
+import { AuthService } from '../../services/AuthService';
+import { EmailService } from '../../services/EmailService';
+import { DrizzleUserRepository } from '../../repositories/drizzle/DrizzleUserRepository';
+import { AuthValidator } from '../../validators/AuthValidator';
+import { z } from 'zod';
+
+
+
+export class RegisterHandler extends BaseHandler {
+  private authService: AuthService;
+  private emailService: EmailService;
+
+  constructor() {
+    super();
+    const userRepository = new DrizzleUserRepository();
+    this.authService = new AuthService(userRepository);
+    this.emailService = new EmailService();
+  }
+
+  async handle(req: NextRequest) {
+    const ip = this.getClientIp(req);
+    const rateLimit = this.rateLimiter.check(ip, 100, 15 * 60 * 1000);
+
+    if (rateLimit.isExceeded) {
+      return this.tooManyRequests('Too many registration attempts', rateLimit);
+    }
+
+    try {
+      const body = await req.json();
+      const validatedData = AuthValidator.registerSchema.parse(body);
+
+      const result = await this.authService.register(validatedData);
+      
+      // Fire and forget welcome email to prevent delivery issues from blocking registration
+      this.emailService.sendWelcomeEmail(result.user.email, result.user.username).catch(err => {
+        console.error('[RegisterHandler] background email dispatch failed:', err);
+      });
+
+      const response = this.success(result, 201, rateLimit);
+      
+      // Set access token in cookie
+      response.cookies.set('accessToken', result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60, // 1 hour (as requested)
+        path: '/',
+      });
+
+      // Set refresh token in cookie
+      response.cookies.set('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: '/',
+      });
+
+      return response;
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return this.error(error.issues[0].message, 400, rateLimit);
+      }
+      return this.error(error.message || 'Registration failed', 400, rateLimit);
+    }
+  }
+}

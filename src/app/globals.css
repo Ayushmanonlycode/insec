@@ -49,3 +49,27 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555555;
 }
+
+/* Custom Miniature Scrollbar for High-Density UI */
+.mini-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mini-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mini-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 178, 0.1);
+  border-radius: 20px;
+}
+
+.mini-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 178, 0.3);
+}
+
+/* Firefox support */
+.mini-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 178, 0.1) transparent;
+}

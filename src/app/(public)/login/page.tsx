@@ -1,16 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Logo from '@/components/common/Logo';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        router.push('/welcome');
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Login failed');
+            }
+
+            router.push('/dashboard');
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -39,6 +66,9 @@ export default function LoginPage() {
                             <input
                                 type="email"
                                 placeholder="name@apnisec.com"
+                                required
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 className="w-full bg-zinc-950/50 border border-white/10 rounded-sm py-4 px-5 text-sm font-medium focus:outline-none focus:border-white/30 focus:bg-zinc-900/50 transition-all placeholder:text-white/5"
                             />
                         </div>
@@ -51,13 +81,32 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 placeholder="••••••••"
+                                required
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 className="w-full bg-zinc-950/50 border border-white/10 rounded-sm py-4 px-5 text-sm font-medium focus:outline-none focus:border-white/30 focus:bg-zinc-900/50 transition-all placeholder:text-white/5"
                             />
                         </div>
 
-                        <button type="submit" className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 mt-2">
-                            Login
-                            <ArrowRight size={14} strokeWidth={3} />
+                        {error && (
+                            <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-500/10 p-2 rounded-sm border border-red-500/20">
+                                {error}
+                            </p>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+                        >
+                            {isLoading ? (
+                                <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                                <>
+                                    Login
+                                    <ArrowRight size={14} strokeWidth={3} />
+                                </>
+                            )}
                         </button>
                     </form>
 
