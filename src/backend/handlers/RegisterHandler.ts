@@ -24,6 +24,13 @@ export class RegisterHandler extends BaseHandler {
   }
 
   async handle(req: NextRequest) {
+    const ip = this.getClientIp(req);
+    const rateLimit = this.rateLimiter.check(ip, 100, 15 * 60 * 1000);
+
+    if (rateLimit.isExceeded) {
+      return this.tooManyRequests('Too many registration attempts', rateLimit);
+    }
+
     try {
       const body = await req.json();
       const validatedData = registerSchema.parse(body);
@@ -33,7 +40,7 @@ export class RegisterHandler extends BaseHandler {
       // Fire and forget welcome email
       this.emailService.sendWelcomeEmail(result.user.email, result.user.username);
 
-      const response = this.success(result, 201);
+      const response = this.success(result, 201, rateLimit);
       
       // Set access token in cookie
       response.cookies.set('accessToken', result.accessToken, {
@@ -56,9 +63,9 @@ export class RegisterHandler extends BaseHandler {
       return response;
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        return this.error(error.issues[0].message, 400);
+        return this.error(error.issues[0].message, 400, rateLimit);
       }
-      return this.error(error.message || 'Registration failed', 400);
+      return this.error(error.message || 'Registration failed', 400, rateLimit);
     }
   }
 }

@@ -19,13 +19,20 @@ export class LoginHandler extends BaseHandler {
   }
 
   async handle(req: NextRequest) {
+    const ip = this.getClientIp(req);
+    const rateLimit = this.rateLimiter.check(ip, 100, 15 * 60 * 1000);
+
+    if (rateLimit.isExceeded) {
+      return this.tooManyRequests('Too many login attempts', rateLimit);
+    }
+
     try {
       const body = await req.json();
       const { email, password } = loginSchema.parse(body);
 
       const result = await this.authService.login(email, password);
 
-      const response = this.success(result);
+      const response = this.success(result, 200, rateLimit);
       
       response.cookies.set('accessToken', result.accessToken, {
         httpOnly: true,
@@ -46,9 +53,9 @@ export class LoginHandler extends BaseHandler {
       return response;
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        return this.error(error.issues[0].message, 400);
+        return this.error(error.issues[0].message, 400, rateLimit);
       }
-      return this.error(error.message || 'Login failed', 401);
+      return this.error(error.message || 'Login failed', 401, rateLimit);
     }
   }
 }
