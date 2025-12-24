@@ -1,11 +1,23 @@
 import { IBlogRepository } from '../repositories/interfaces/IBlogRepository';
 import { Blog, NewBlog } from '@/lib/db/schema';
+import { CacheService } from '../utils/CacheService';
 
 export class BlogService {
+  private readonly CACHE_TTL = 300; // 5 minutes
+
   constructor(private blogRepository: IBlogRepository) {}
 
   async getAllBlogs(): Promise<(Blog & { author: { username: string } })[]> {
-    return await this.blogRepository.findAll();
+    const cacheKey = 'blogs:all';
+    const cachedBlogs = CacheService.get<(Blog & { author: { username: string } })[]>(cacheKey);
+    
+    if (cachedBlogs) {
+      return cachedBlogs;
+    }
+
+    const blogs = await this.blogRepository.findAll();
+    CacheService.set(cacheKey, blogs, this.CACHE_TTL);
+    return blogs;
   }
 
   async createBlog(authorId: string, data: { title: string; content: string }): Promise<Blog & { author: { username: string } }> {
@@ -22,7 +34,9 @@ export class BlogService {
       content: data.content,
     };
 
-    return await this.blogRepository.create(newBlog);
+    const blog = await this.blogRepository.create(newBlog);
+    CacheService.delete('blogs:all');
+    return blog;
   }
 
   async updateBlog(userId: string, blogId: string, data: Partial<Blog>): Promise<Blog & { author: { username: string } }> {
@@ -33,7 +47,10 @@ export class BlogService {
       throw new Error('Unauthorized: Access Denied');
     }
 
-    return await this.blogRepository.update(blogId, data);
+    const updated = await this.blogRepository.update(blogId, data);
+    CacheService.delete('blogs:all');
+    CacheService.delete(`blog:${blogId}`);
+    return updated;
   }
 
   async deleteBlog(userId: string, blogId: string): Promise<void> {
@@ -45,5 +62,7 @@ export class BlogService {
     }
 
     await this.blogRepository.delete(blogId);
+    CacheService.delete('blogs:all');
+    CacheService.delete(`blog:${blogId}`);
   }
 }
