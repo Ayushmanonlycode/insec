@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function WelcomePage() {
     const router = useRouter();
-    const user = { displayName: 'John Doe' };
+    const [user, setUser] = useState<{ fullName: string } | null>(null);
     const [currentMessage, setCurrentMessage] = useState(0);
 
     const messages = [
@@ -16,6 +16,19 @@ export default function WelcomePage() {
     ];
 
     useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch user', err);
+            }
+        };
+        fetchUser();
+
         const totalTime = 3500;
         const timer = setTimeout(() => {
             router.replace('/dashboard');
@@ -53,7 +66,7 @@ export default function WelcomePage() {
                         transition={{ duration: 1, delay: 0.2 }}
                         className="text-2xl md:text-3xl font-medium tracking-tight text-white"
                     >
-                        Welcome, <span className="text-white/60">{user?.displayName || 'User'}</span>
+                        Welcome, <span className="text-white/60">{user?.fullName || 'Agent'}</span>
                     </motion.h1>
                 </div>
 

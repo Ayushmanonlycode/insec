@@ -12,6 +12,7 @@ import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import { IssueCard, Issue, IssueType, IssueStatus } from '@/components/dashboard/IssueCard';
 import { CreateIssueModal } from '@/components/dashboard/CreateIssueModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
+import { useEffect } from 'react';
 
 const INITIAL_ISSUES: Issue[] = [
     { id: 'SEC-042', type: 'VAPT', title: 'Unhandled Exception in Auth Middleware', priority: 'CRITICAL', status: 'IN PROGRESS', description: 'Vulnerability in auth layer allowing bypass.', time: '2h ago' },
@@ -20,9 +21,25 @@ const INITIAL_ISSUES: Issue[] = [
 ];
 
 export default function DashboardPage() {
+    const [user, setUser] = useState<{ fullName: string } | null>(null);
     const [issues, setIssues] = useState<Issue[]>(INITIAL_ISSUES);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [filterType, setFilterType] = useState<IssueType | 'ALL'>('ALL');
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch user', err);
+            }
+        };
+        fetchUser();
+    }, []);
 
     const handleCreateIssue = (issueData: Partial<Issue>) => {
         const issue: Issue = {
@@ -67,7 +84,7 @@ export default function DashboardPage() {
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Session ID: 8X-929</span>
                         </div>
                         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">
-                            Welcome Back, <br /> <span className="text-white/20">John Doe</span>
+                            Welcome Back, <br /> <span className="text-white/20">{user?.fullName || 'Agent'}</span>
                         </h1>
                         <div className="flex flex-wrap gap-6 text-[10px] font-bold uppercase tracking-widest text-white/40 pt-2">
                             <div className="flex items-center gap-2">
@@ -126,7 +143,7 @@ export default function DashboardPage() {
                                 <div className="relative">
                                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
                                     <input
-                                        type="text"
+                                         type="text"
                                         placeholder="Filter Protocol..."
                                         className="bg-zinc-950 border border-white/10 rounded-sm py-2 pl-9 pr-4 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-[#00FFB2]/50 w-48 transition-all"
                                     />
