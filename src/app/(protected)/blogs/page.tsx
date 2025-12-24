@@ -7,13 +7,16 @@ import { BlogCard, Blog } from '@/components/blogs/BlogCard';
 import { CreateBlogModal } from '@/components/blogs/CreateBlogModal';
 import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
+import Footer from '@/components/layout/Footer';
 
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState<{ fullName: string | null } | null>(null);
+    const [user, setUser] = useState<{ id: string; fullName: string | null } | null>(null);
 
     const fetchBlogs = async () => {
         setIsLoading(true);
@@ -46,9 +49,13 @@ export default function BlogsPage() {
         fetchBlogs();
     }, []);
 
-    const handleCreateBlog = async (blogData: { title: string; content: string }) => {
-        const res = await fetch('/api/blogs', {
-            method: 'POST',
+    const handleSubmitBlog = async (blogData: { title: string; content: string }) => {
+        const isEdit = !!editingBlog;
+        const url = isEdit ? `/api/blogs/${editingBlog.id}` : '/api/blogs';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+            method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(blogData),
         });
@@ -56,14 +63,41 @@ export default function BlogsPage() {
         const data = await res.json();
 
         if (res.ok) {
-            setBlogs(prev => [data.data, ...prev]);
+            if (isEdit) {
+                setBlogs(prev => prev.map(b => b.id === editingBlog.id ? data.data : b));
+            } else {
+                setBlogs(prev => [data.data, ...prev]);
+            }
+            setEditingBlog(null);
         } else {
             throw new Error(data.message || 'Transmission failed');
         }
     };
 
+    const handleDeleteBlog = async (id: string) => {
+        if (!confirm('Are you sure you want to terminate this directive?')) return;
+
+        try {
+            const res = await fetch(`/api/blogs/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setBlogs(prev => prev.filter(b => b.id !== id));
+            }
+        } catch (err) {
+            console.error('Failed to delete blog', err);
+        }
+    };
+
+    const filteredBlogs = blogs.filter(blog => {
+        if (searchQuery.trim() === '') return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            blog.title.toLowerCase().includes(query) ||
+            blog.content.toLowerCase().includes(query)
+        );
+    });
+
     return (
-        <main className="min-h-screen bg-black text-white relative overflow-hidden flex flex-col">
+        <main className="min-h-screen bg-[#0a0a0a] text-white relative overflow-hidden flex flex-col">
             {/* Structural Background */}
             <div className="absolute inset-0 pointer-events-none opacity-20">
                 <div className="absolute top-[10%] w-full h-px bg-white/10"></div>
@@ -91,7 +125,10 @@ export default function BlogsPage() {
                     </div>
 
                     <button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                            setEditingBlog(null);
+                            setIsCreateModalOpen(true);
+                        }}
                         className="bg-[#00FFB2] text-black px-6 py-4 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(0,255,178,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-3"
                     >
                         <Plus size={16} strokeWidth={3} />
@@ -114,28 +151,43 @@ export default function BlogsPage() {
                                 <input
                                     type="text"
                                     placeholder="Search Directives..."
-                                    className="bg-zinc-950 border border-white/10 rounded-sm py-2 pl-9 pr-4 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-[#00FFB2]/50 w-64 transition-all"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="bg-zinc-900/50 border border-white/10 rounded-sm py-2 pl-9 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-[#00FFB2]/50 w-72 transition-all"
                                 />
                             </div>
                         </div>
 
-                        {/* Directives Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {isLoading ? (
-                                <div className="col-span-full py-20 flex flex-col items-center justify-center border border-white/5 bg-zinc-950/20 rounded-sm">
-                                    <div className="w-8 h-8 border-2 border-[#00FFB2]/20 border-t-[#00FFB2] rounded-full animate-spin mb-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Syncing Intelligence Stream...</span>
-                                </div>
-                            ) : blogs.length === 0 ? (
-                                <div className="col-span-full py-20 flex flex-col items-center justify-center border border-white/5 bg-zinc-950/20 rounded-sm">
-                                    <ShieldAlert size={40} className="text-white/10 mb-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">No active directives found.</span>
-                                </div>
-                            ) : (
-                                blogs.map((blog) => (
-                                    <BlogCard key={blog.id} blog={blog} />
-                                ))
-                            )}
+                        {/* Directives Grid - Internally Scrollable */}
+                        <div className="max-h-[75vh] overflow-y-auto pr-2 mini-scrollbar">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {isLoading ? (
+                                    <div className="col-span-full py-20 flex flex-col items-center justify-center border border-white/5 bg-zinc-950/20 rounded-sm">
+                                        <div className="w-8 h-8 border-2 border-[#00FFB2]/20 border-t-[#00FFB2] rounded-full animate-spin mb-4" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Syncing Intelligence Stream...</span>
+                                    </div>
+                                ) : blogs.length === 0 ? (
+                                    <div className="col-span-full py-20 flex flex-col items-center justify-center border border-white/5 bg-zinc-950/20 rounded-sm">
+                                        <ShieldAlert size={40} className="text-white/10 mb-4" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">No active directives found.</span>
+                                    </div>
+                                ) : (
+                                    filteredBlogs.map((blog) => {
+                                        const isAuthor = user?.id && blog.authorId.toLowerCase() === user.id.toLowerCase();
+                                        return (
+                                            <BlogCard
+                                                key={blog.id}
+                                                blog={blog}
+                                                onEdit={isAuthor ? (blog) => {
+                                                    setEditingBlog(blog);
+                                                    setIsCreateModalOpen(true);
+                                                } : undefined}
+                                                onDelete={isAuthor ? handleDeleteBlog : undefined}
+                                            />
+                                        );
+                                    })
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -148,8 +200,12 @@ export default function BlogsPage() {
 
             <CreateBlogModal
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onCreate={handleCreateBlog}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    setEditingBlog(null);
+                }}
+                onSubmit={handleSubmitBlog}
+                initialData={editingBlog}
             />
 
             <ProfileModal
@@ -157,6 +213,8 @@ export default function BlogsPage() {
                 onClose={() => setIsProfileModalOpen(false)}
                 onUpdate={(newProfile) => setUser(newProfile)}
             />
+
+            <Footer variant="minimal" />
         </main>
     );
 }

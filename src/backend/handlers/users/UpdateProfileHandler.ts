@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { UserService } from '../../services/UserService';
+import { EmailService } from '../../services/EmailService';
 import { DrizzleUserRepository } from '../../repositories/DrizzleUserRepository';
 import { JWTService } from '../../utils/JWTService';
 import { z } from 'zod';
@@ -13,11 +14,14 @@ const updateProfileSchema = z.object({
 
 export class UpdateProfileHandler extends BaseHandler {
   private userService: UserService;
+  private emailService: EmailService;
+  private userRepository: DrizzleUserRepository;
 
   constructor() {
     super();
-    const userRepository = new DrizzleUserRepository();
-    this.userService = new UserService(userRepository);
+    this.userRepository = new DrizzleUserRepository();
+    this.userService = new UserService(this.userRepository);
+    this.emailService = new EmailService();
   }
 
   async handle(req: NextRequest) {
@@ -46,6 +50,14 @@ export class UpdateProfileHandler extends BaseHandler {
       }
 
       const updatedProfile = await this.userService.updateProfile(payload.id, validatedData);
+
+      // Fire and forget notification
+      this.userRepository.findById(payload.id).then(user => {
+        if (user) {
+          this.emailService.sendProfileUpdateNotification(user.email);
+        }
+      });
+
       return this.success(updatedProfile, 200, rateLimit);
     } catch (error: any) {
       if (error instanceof z.ZodError) {

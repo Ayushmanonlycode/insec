@@ -3,10 +3,13 @@
 import React from 'react';
 import Logo from '@/components/common/Logo';
 import { Search, Bell, LogOut, UserCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export function DashboardNav({ onProfileClick }: { onProfileClick?: () => void }) {
     const router = useRouter();
+    const pathname = usePathname();
 
     const handleLogout = async () => {
         try {
@@ -16,24 +19,43 @@ export function DashboardNav({ onProfileClick }: { onProfileClick?: () => void }
             console.error('Logout failed:', error);
         }
     };
+
+    const navLinks = [
+        { label: 'Console', href: '/dashboard' },
+        { label: 'Directives', href: '/blogs' },
+        { label: 'Statistics', href: '/stats' },
+    ];
+
     return (
         <nav className="relative z-20 border-b border-white/10 bg-black/50 backdrop-blur-xl px-6 md:px-12 py-4 flex items-center justify-between">
             <div className="flex items-center gap-12">
-                <a href="/" className="hover:opacity-80 transition-opacity">
+                <Link href="/" className="hover:opacity-80 transition-opacity">
                     <Logo className="w-28 h-auto" />
-                </a>
+                </Link>
                 <div className="hidden md:flex items-center gap-8">
-                    <a href="/dashboard" className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Console</a>
-                    <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">Nodes</a>
-                    <a href="/blogs" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">Directives</a>
+                    {navLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                            <Link
+                                key={link.label}
+                                href={link.href}
+                                className={cn(
+                                    "text-[10px] font-black uppercase tracking-[0.3em] transition-all relative py-1",
+                                    isActive
+                                        ? "text-white"
+                                        : "text-white/30 hover:text-white"
+                                )}
+                            >
+                                {link.label}
+                                {isActive && (
+                                    <span className="absolute bottom-0 left-0 w-full h-px bg-[#00FFB2] shadow-[0_0_8px_#00FFB2]" />
+                                )}
+                            </Link>
+                        );
+                    })}
                 </div>
             </div>
             <div className="flex items-center gap-6">
-                <button className="text-white/40 hover:text-white transition-colors"><Search size={18} /></button>
-                <button className="text-white/40 hover:text-white transition-colors relative">
-                    <Bell size={18} />
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#00FFB2] rounded-full shadow-[0_0_10px_#00FFB2]" />
-                </button>
                 <button
                     onClick={onProfileClick}
                     className="w-8 h-8 rounded-sm bg-zinc-900 border border-white/10 flex items-center justify-center text-[10px] font-black text-[#00FFB2] hover:border-[#00FFB2]/50 transition-colors"

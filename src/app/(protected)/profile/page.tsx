@@ -17,6 +17,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { DashboardNav } from '@/components/dashboard/DashboardNav';
+import Footer from '@/components/layout/Footer';
+
 export default function ProfilePage() {
     return (
         <main className="min-h-screen bg-black text-white relative overflow-hidden flex flex-col">
@@ -29,21 +32,7 @@ export default function ProfilePage() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(0,255,178,0.05)_0%,transparent_50%)]"></div>
             </div>
 
-            {/* Navigation Bar */}
-            <nav className="relative z-20 border-b border-white/10 bg-black/50 backdrop-blur-xl px-6 md:px-12 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-12">
-                    <a href="/dashboard" className="hover:opacity-80 transition-opacity flex items-center gap-2 group">
-                        <ArrowLeft size={16} className="text-white/40 group-hover:text-white transition-colors" />
-                        <Logo className="w-28 h-auto" />
-                    </a>
-                </div>
-                <div className="flex items-center gap-6">
-                    <button className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-red-500 transition-colors flex items-center gap-2">
-                        <LogOut size={14} />
-                        Abort Session
-                    </button>
-                </div>
-            </nav>
+            <DashboardNav />
 
             <div className="relative z-10 flex-1 p-6 md:p-12 max-w-[1200px] mx-auto w-full space-y-12">
                 {/* Header Section */}
@@ -198,6 +187,7 @@ export default function ProfilePage() {
                     </section>
                 </div>
             </div>
+            <Footer variant="minimal" />
         </main>
     );
 }

@@ -26,7 +26,7 @@ export class IssueService {
   async updateIssue(issueId: string, userId: string, data: UpdateIssue) {
     const isOwner = await this.issueRepository.isOwner(issueId, userId);
     if (!isOwner) {
-      throw new Error('Unauthorized to update this issue');
+      throw new Error('Unauthorized: Access Denied');
     }
     return this.issueRepository.update(issueId, data);
   }
@@ -34,7 +34,7 @@ export class IssueService {
   async deleteIssue(issueId: string, userId: string) {
     const isOwner = await this.issueRepository.isOwner(issueId, userId);
     if (!isOwner) {
-      throw new Error('Unauthorized to delete this issue');
+      throw new Error('Unauthorized: Access Denied');
     }
     return this.issueRepository.delete(issueId);
   }

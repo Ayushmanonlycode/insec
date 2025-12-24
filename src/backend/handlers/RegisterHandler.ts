@@ -37,8 +37,10 @@ export class RegisterHandler extends BaseHandler {
 
       const result = await this.authService.register(validatedData);
       
-      // Fire and forget welcome email
-      this.emailService.sendWelcomeEmail(result.user.email, result.user.username);
+      // Fire and forget welcome email to prevent delivery issues from blocking registration
+      this.emailService.sendWelcomeEmail(result.user.email, result.user.username).catch(err => {
+        console.error('[RegisterHandler] background email dispatch failed:', err);
+      });
 
       const response = this.success(result, 201, rateLimit);
       
@@ -47,7 +49,7 @@ export class RegisterHandler extends BaseHandler {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 15, // 15 minutes
+        maxAge: 60 * 60, // 1 hour (as requested)
         path: '/',
       });
 

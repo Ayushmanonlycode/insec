@@ -1,7 +1,9 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { IssueService } from '../../services/IssueService';
+import { EmailService } from '../../services/EmailService';
 import { DrizzleIssueRepository } from '../../repositories/DrizzleIssueRepository';
+import { DrizzleUserRepository } from '../../repositories/DrizzleUserRepository';
 import { JWTService } from '../../utils/JWTService';
 import { z } from 'zod';
 
@@ -15,11 +17,15 @@ const createIssueSchema = z.object({
 
 export class CreateIssueHandler extends BaseHandler {
   private issueService: IssueService;
+  private emailService: EmailService;
+  private userRepository: DrizzleUserRepository;
 
   constructor() {
     super();
     const repository = new DrizzleIssueRepository();
     this.issueService = new IssueService(repository);
+    this.emailService = new EmailService();
+    this.userRepository = new DrizzleUserRepository();
   }
 
   async handle(req: NextRequest) {
@@ -44,6 +50,18 @@ export class CreateIssueHandler extends BaseHandler {
       const validatedData = createIssueSchema.parse(body);
 
       const issue = await this.issueService.createIssue(payload.id, validatedData as any);
+      
+      // Fire and forget notification
+      this.userRepository.findById(payload.id).then(user => {
+        if (user) {
+          this.emailService.sendIssueNotification(user.email, {
+            type: validatedData.type,
+            title: validatedData.title,
+            description: validatedData.description
+          });
+        }
+      });
+
       return this.success(issue, 201, rateLimit);
     } catch (error: any) {
       if (error instanceof z.ZodError) {

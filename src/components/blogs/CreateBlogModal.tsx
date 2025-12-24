@@ -6,14 +6,25 @@ import { X, Send, BookOpen, AlertCircle } from 'lucide-react';
 interface CreateBlogModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreate: (blogData: { title: string; content: string }) => Promise<void>;
+    onSubmit: (blogData: { title: string; content: string }) => Promise<void>;
+    initialData?: { title: string; content: string } | null;
 }
 
-export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalProps) {
+export function CreateBlogModal({ isOpen, onClose, onSubmit, initialData }: CreateBlogModalProps) {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (initialData) {
+            setTitle(initialData.title);
+            setContent(initialData.content);
+        } else {
+            setTitle('');
+            setContent('');
+        }
+    }, [initialData, isOpen]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,9 +35,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
 
         setIsSubmitting(true);
         try {
-            await onCreate({ title, content });
-            setTitle('');
-            setContent('');
+            await onSubmit({ title, content });
             onClose();
         } catch (err: any) {
             setError(err.message || 'Transmission failed');
@@ -37,12 +46,14 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
 
     if (!isOpen) return null;
 
+    const isEdit = !!initialData;
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
             <div className="bg-zinc-950 border border-white/10 w-full max-w-2xl rounded-sm shadow-2xl relative animate-in zoom-in-95 duration-300">
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
                     <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-3">
-                        <BookOpen size={16} className="text-[#00FFB2]" /> New Intelligence Directive
+                        <BookOpen size={16} className="text-[#00FFB2]" /> {isEdit ? 'Update Intelligence Directive' : 'New Intelligence Directive'}
                     </h2>
                     <button onClick={onClose} className="text-white/20 hover:text-white transition-colors">
                         <X size={20} />
@@ -89,7 +100,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                         className="w-full bg-white text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 mt-4 disabled:opacity-50"
                     >
                         <Send size={16} strokeWidth={3} className={isSubmitting ? 'animate-pulse' : ''} />
-                        {isSubmitting ? 'Transmitting Data...' : 'Broadcast Directive'}
+                        {isSubmitting ? 'Transmitting Data...' : isEdit ? 'Update Directive' : 'Broadcast Directive'}
                     </button>
                 </form>
             </div>

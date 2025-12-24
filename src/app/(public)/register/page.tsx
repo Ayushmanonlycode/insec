@@ -14,18 +14,25 @@ export default function SignupPage() {
         password: '',
         username: ''
     });
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!acceptedTerms) {
+            setError('Term Acceptance Required for Uplink');
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
 
         try {
-            // Derived username if not provided or just use a placeholder
-            // For now let's add a username field or auto-generate
+            // Derive username and ensure it meets min length
+            const derivedUsername = formData.email.split('@')[0];
             const payload = {
                 ...formData,
-                username: formData.username || formData.email.split('@')[0]
+                username: formData.username.trim() || (derivedUsername.length >= 3 ? derivedUsername : `user_${Math.random().toString(36).slice(2, 5)}`)
             };
 
             const res = await fetch('/api/auth/register', {
@@ -122,19 +129,27 @@ export default function SignupPage() {
                         </div>
 
                         {error && (
-                            <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-500/10 p-2 rounded-sm border border-red-500/20">
-                                {error}
-                            </p>
+                            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-sm">
+                                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest leading-relaxed">
+                                    {error}
+                                </p>
+                            </div>
                         )}
 
                         <div className="pt-1">
                             <label className="flex items-start gap-3 cursor-pointer group">
                                 <div className="mt-1">
-                                    <input type="checkbox" className="peer sr-only" />
+                                    <input
+                                        type="checkbox"
+                                        checked={acceptedTerms}
+                                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                                        className="peer sr-only"
+                                        id="terms"
+                                    />
                                     <div className="w-3.5 h-3.5 border border-white/20 rounded-sm bg-black peer-checked:bg-[#00FFB2] peer-checked:border-[#00FFB2] transition-all" />
                                 </div>
                                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 leading-relaxed group-hover:text-white/40 transition-colors">
-                                    I ACCEPT THE Terms & Conditions
+                                    I ACCEPT THE <a href="#" className="underline decoration-white/10 hover:text-[#00FFB2] transition_colors">Terms & Conditions</a> (REQUIRED)
                                 </span>
                             </label>
                         </div>
