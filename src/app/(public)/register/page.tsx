@@ -24,15 +24,28 @@ export default function SignupPage() {
             return;
         }
 
+        // Client-side Validation (matching Zod schema)
+        if (formData.password.length < 8) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
+
+        if (formData.username && formData.username.trim().length < 3) {
+            setError('Username must be at least 3 characters');
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
 
         try {
-            // Derive username and ensure it meets min length
+            // Derive username if empty
             const derivedUsername = formData.email.split('@')[0];
+            const finalUsername = formData.username.trim() || (derivedUsername.length >= 3 ? derivedUsername : `user_${Math.random().toString(36).slice(2, 5)}`);
+
             const payload = {
                 ...formData,
-                username: formData.username.trim() || (derivedUsername.length >= 3 ? derivedUsername : `user_${Math.random().toString(36).slice(2, 5)}`)
+                username: finalUsername
             };
 
             const res = await fetch('/api/auth/register', {
@@ -44,7 +57,8 @@ export default function SignupPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || 'Registration failed');
+                // Fix: Check data.message (from BaseHandler) or data.error
+                throw new Error(data.message || data.error || 'Registration failed');
             }
 
             router.push('/welcome');
