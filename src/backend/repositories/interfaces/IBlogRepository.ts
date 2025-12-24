@@ -1,4 +1,6 @@
-import { Blog, NewBlog } from '@/lib/db/schema';
+import { Blog } from '../../types/Blog';
+import { NewBlog } from '../../../lib/db/schema';
+
 
 export interface IBlogRepository {
   findAll(): Promise<(Blog & { author: { username: string } })[]>;

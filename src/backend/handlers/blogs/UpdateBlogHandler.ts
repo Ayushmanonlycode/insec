@@ -1,14 +1,11 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { BlogService } from '../../services/BlogService';
-import { DrizzleBlogRepository } from '../../repositories/DrizzleBlogRepository';
+import { DrizzleBlogRepository } from '../../repositories/drizzle/DrizzleBlogRepository';
+import { BlogValidator } from '../../validators/BlogValidator';
 import { JWTService } from '../../utils/JWTService';
 import { z } from 'zod';
 
-const updateBlogSchema = z.object({
-  title: z.string().trim().min(3).max(255).optional(),
-  content: z.string().trim().min(10).optional(),
-});
 
 export class UpdateBlogHandler extends BaseHandler {
   private blogService: BlogService;
@@ -38,8 +35,7 @@ export class UpdateBlogHandler extends BaseHandler {
       }
 
       const body = await req.json();
-      const validatedData = updateBlogSchema.parse(body);
-
+      const validatedData = BlogValidator.updateBlogSchema.parse(body);
       const blog = await this.blogService.updateBlog(payload.id, params.id, validatedData as any);
       return this.success(blog, 200, rateLimit);
     } catch (error: any) {

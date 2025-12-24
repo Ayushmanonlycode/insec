@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
-import { BaseHandler } from './BaseHandler';
-import { AuthService } from '../services/AuthService';
-import { DrizzleUserRepository } from '../repositories/DrizzleUserRepository';
+import { BaseHandler } from '../BaseHandler';
+import { AuthService } from '../../services/AuthService';
+import { DrizzleUserRepository } from '../../repositories/drizzle/DrizzleUserRepository';
 
 export class RefreshHandler extends BaseHandler {
   private authService: AuthService;

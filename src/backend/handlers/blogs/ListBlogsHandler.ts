@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { BlogService } from '../../services/BlogService';
-import { DrizzleBlogRepository } from '../../repositories/DrizzleBlogRepository';
+import { DrizzleBlogRepository } from '../../repositories/drizzle/DrizzleBlogRepository';
 import { JWTService } from '../../utils/JWTService';
 
 export class ListBlogsHandler extends BaseHandler {

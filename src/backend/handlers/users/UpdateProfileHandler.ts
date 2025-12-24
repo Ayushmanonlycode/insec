@@ -2,15 +2,11 @@ import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { UserService } from '../../services/UserService';
 import { EmailService } from '../../services/EmailService';
-import { DrizzleUserRepository } from '../../repositories/DrizzleUserRepository';
+import { DrizzleUserRepository } from '../../repositories/drizzle/DrizzleUserRepository';
+import { AuthValidator } from '../../validators/AuthValidator';
 import { JWTService } from '../../utils/JWTService';
 import { z } from 'zod';
 
-const updateProfileSchema = z.object({
-  fullName: z.string().trim().min(2).max(100).optional(),
-  username: z.string().trim().min(3).max(50).toLowerCase().optional(),
-  email: z.string().email().trim().toLowerCase().optional(),
-});
 
 export class UpdateProfileHandler extends BaseHandler {
   private userService: UserService;
@@ -43,7 +39,7 @@ export class UpdateProfileHandler extends BaseHandler {
       }
 
       const body = await req.json();
-      const validatedData = updateProfileSchema.parse(body);
+      const validatedData = AuthValidator.updateProfileSchema.parse(body);
 
       if (Object.keys(validatedData).length === 0) {
         return this.error('No update data provided', 400, rateLimit);

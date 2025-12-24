@@ -1,7 +1,7 @@
-import { db } from '@/lib/db';
-import { blogs, users, Blog, NewBlog } from '@/lib/db/schema';
+import { db } from '../../../lib/db';
+import { blogs, users, Blog, NewBlog } from '../../../lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { IBlogRepository } from './IBlogRepository';
+import { IBlogRepository } from '../interfaces/IBlogRepository';
 
 export class DrizzleBlogRepository implements IBlogRepository {
   async findAll(): Promise<(Blog & { author: { username: string } })[]> {
@@ -15,7 +15,7 @@ export class DrizzleBlogRepository implements IBlogRepository {
     .innerJoin(users, eq(blogs.authorId, users.id))
     .orderBy(desc(blogs.createdAt));
 
-    return result.map(r => ({
+    return result.map((r: any) => ({
       ...r.blog,
       author: r.author
     }));

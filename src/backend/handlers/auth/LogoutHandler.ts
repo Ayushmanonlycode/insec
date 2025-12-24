@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { BaseHandler } from './BaseHandler';
+import { BaseHandler } from '../BaseHandler';
 
 export class LogoutHandler extends BaseHandler {
   async handle(req: NextRequest) {

@@ -1,4 +1,5 @@
-  import { User, NewUser } from '@/lib/db/schema';
+import { User } from '../../types/User';
+import { NewUser } from '../../../lib/db/schema';
 
 export interface IUserRepository {
   findById(id: string): Promise<User | null>;

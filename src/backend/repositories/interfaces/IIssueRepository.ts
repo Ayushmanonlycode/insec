@@ -1,4 +1,5 @@
-import { Issue, NewIssue, UpdateIssue } from '@/lib/db/schema';
+import { Issue } from '../../types/Issue';
+import { NewIssue, UpdateIssue } from '../../../lib/db/schema';
 
 export interface IIssueRepository {
   findById(id: string): Promise<Issue | null>;

@@ -1,4 +1,4 @@
-import { IBlogRepository } from '../repositories/IBlogRepository';
+import { IBlogRepository } from '../repositories/interfaces/IBlogRepository';
 import { Blog, NewBlog } from '@/lib/db/schema';
 
 export class BlogService {

@@ -2,18 +2,12 @@ import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { IssueService } from '../../services/IssueService';
 import { EmailService } from '../../services/EmailService';
-import { DrizzleIssueRepository } from '../../repositories/DrizzleIssueRepository';
-import { DrizzleUserRepository } from '../../repositories/DrizzleUserRepository';
+import { DrizzleIssueRepository } from '../../repositories/drizzle/DrizzleIssueRepository';
+import { DrizzleUserRepository } from '../../repositories/drizzle/DrizzleUserRepository';
+import { IssueValidator } from '../../validators/IssueValidator';
 import { JWTService } from '../../utils/JWTService';
 import { z } from 'zod';
 
-const createIssueSchema = z.object({
-  type: z.enum(['Cloud Security', 'Redteam Assessment', 'VAPT']),
-  title: z.string().min(5).max(255).trim(),
-  description: z.string().min(10).trim(),
-  priority: z.enum(['Low', 'Medium', 'High', 'Critical']).optional(),
-  status: z.enum(['Open', 'In Progress', 'Resolved', 'Closed']).optional(),
-});
 
 export class CreateIssueHandler extends BaseHandler {
   private issueService: IssueService;
@@ -47,7 +41,7 @@ export class CreateIssueHandler extends BaseHandler {
       }
 
       const body = await req.json();
-      const validatedData = createIssueSchema.parse(body);
+      const validatedData = IssueValidator.createIssueSchema.parse(body);
 
       const issue = await this.issueService.createIssue(payload.id, validatedData as any);
       

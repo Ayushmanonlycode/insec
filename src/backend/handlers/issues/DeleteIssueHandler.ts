@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { IssueService } from '../../services/IssueService';
-import { DrizzleIssueRepository } from '../../repositories/DrizzleIssueRepository';
+import { DrizzleIssueRepository } from '../../repositories/drizzle/DrizzleIssueRepository';
 import { JWTService } from '../../utils/JWTService';
 
 export class DeleteIssueHandler extends BaseHandler {

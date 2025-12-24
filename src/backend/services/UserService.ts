@@ -1,24 +1,31 @@
-import { IUserRepository } from '../repositories/IUserRepository';
-import { User } from '@/lib/db/schema';
+import { IUserRepository } from '../repositories/interfaces/IUserRepository';
+import { User } from '../types/User';
+import { CacheService } from '../utils/CacheService';
 
 export class UserService {
   private userRepository: IUserRepository;
+  private readonly CACHE_TTL = 300; // 5 minutes
 
   constructor(userRepository: IUserRepository) {
     this.userRepository = userRepository;
   }
 
-  async getProfile(userId: string): Promise<Omit<User, 'password' | 'refreshToken'>> {
+  async getProfile(userId: string): Promise<Omit<User, 'password'>> {
+    const cacheKey = `user_profile_${userId}`;
+    const cached = CacheService.get<Omit<User, 'password'>>(cacheKey);
+    if (cached) return cached;
+
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new Error('User not found');
     }
 
-    const { password, ...profile } = user;
+    const { password: _, ...profile } = user;
+    CacheService.set(cacheKey, profile, this.CACHE_TTL);
     return profile;
   }
 
-  async updateProfile(userId: string, data: Partial<Pick<User, 'fullName' | 'username' | 'email'>>): Promise<Omit<User, 'password' | 'refreshToken'>> {
+  async updateProfile(userId: string, data: Partial<Pick<User, 'fullName' | 'username' | 'email'>>): Promise<Omit<User, 'password'>> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new Error('User not found');
@@ -39,6 +46,11 @@ export class UserService {
 
     const updatedUser = await this.userRepository.update(userId, data);
     const { password: _, ...profile } = updatedUser;
+    
+    // Invalidate and update cache
+    const cacheKey = `user_profile_${userId}`;
+    CacheService.set(cacheKey, profile, this.CACHE_TTL);
+    
     return profile;
   }
 }

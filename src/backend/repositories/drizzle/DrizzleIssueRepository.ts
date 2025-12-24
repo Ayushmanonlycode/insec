@@ -1,7 +1,7 @@
-import { db } from '@/lib/db';
-import { issues, Issue, NewIssue, UpdateIssue } from '@/lib/db/schema';
+import { db } from '../../../lib/db';
+import { issues, users, Issue, NewIssue, UpdateIssue } from '../../../lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { IIssueRepository } from './IIssueRepository';
+import { IIssueRepository } from '../interfaces/IIssueRepository';
 
 export class DrizzleIssueRepository implements IIssueRepository {
   async findById(id: string): Promise<Issue | null> {

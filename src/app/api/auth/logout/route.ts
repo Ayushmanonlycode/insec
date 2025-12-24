@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { LogoutHandler } from '@/backend/handlers/LogoutHandler';
+import { LogoutHandler } from '@/backend/handlers/auth/LogoutHandler';
 
 const handler = new LogoutHandler();
 

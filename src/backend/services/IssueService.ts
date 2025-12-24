@@ -1,4 +1,4 @@
-import { IIssueRepository } from '../repositories/IIssueRepository';
+import { IIssueRepository } from '../repositories/interfaces/IIssueRepository';
 import { NewIssue, UpdateIssue } from '@/lib/db/schema';
 
 export class IssueService {

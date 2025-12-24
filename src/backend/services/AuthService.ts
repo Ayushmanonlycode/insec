@@ -1,16 +1,15 @@
-import bcrypt from 'bcrypt';
-import { IUserRepository } from '../repositories/IUserRepository';
+import { IUserRepository } from '../repositories/interfaces/IUserRepository';
 import { JWTService } from '../utils/JWTService';
+import { PasswordUtil } from '../utils/PasswordUtil';
 import { NewUser, User } from '@/lib/db/schema';
 
 export class AuthService {
   constructor(private userRepository: IUserRepository) {}
 
   async register(userData: NewUser) {
-    // Parallelize existence checks and password hashing
     const [existingUsers, hashedPassword] = await Promise.all([
       this.userRepository.findByEmailOrUsername(userData.email, userData.username),
-      bcrypt.hash(userData.password, 10)
+      PasswordUtil.hash(userData.password)
     ]);
 
     if (existingUsers.some(u => u.email === userData.email)) {
@@ -35,7 +34,7 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await PasswordUtil.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
     }

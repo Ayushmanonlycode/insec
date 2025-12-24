@@ -1,17 +1,11 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { IssueService } from '../../services/IssueService';
-import { DrizzleIssueRepository } from '../../repositories/DrizzleIssueRepository';
+import { DrizzleIssueRepository } from '../../repositories/drizzle/DrizzleIssueRepository';
+import { IssueValidator } from '../../validators/IssueValidator';
 import { JWTService } from '../../utils/JWTService';
 import { z } from 'zod';
 
-const updateIssueSchema = z.object({
-  type: z.enum(['Cloud Security', 'Redteam Assessment', 'VAPT']).optional(),
-  title: z.string().min(5).max(255).trim().optional(),
-  description: z.string().min(10).trim().optional(),
-  priority: z.enum(['Low', 'Medium', 'High', 'Critical']).optional(),
-  status: z.enum(['Open', 'In Progress', 'Resolved', 'Closed']).optional(),
-});
 
 export class UpdateIssueHandler extends BaseHandler {
   private issueService: IssueService;
@@ -41,7 +35,7 @@ export class UpdateIssueHandler extends BaseHandler {
       }
 
       const body = await req.json();
-      const validatedData = updateIssueSchema.parse(body);
+      const validatedData = IssueValidator.updateIssueSchema.parse(body);
 
       const issue = await this.issueService.updateIssue(params.id, payload.id, validatedData as any);
       return this.success(issue, 200, rateLimit);

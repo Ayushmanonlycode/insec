@@ -1,7 +1,7 @@
-import { db } from '@/lib/db';
-import { users, User, NewUser } from '@/lib/db/schema';
+import { db } from '../../../lib/db';
+import { users, User, NewUser } from '../../../lib/db/schema';
 import { eq, or } from 'drizzle-orm';
-import { IUserRepository } from './IUserRepository';
+import { IUserRepository } from '../interfaces/IUserRepository';
 
 export class DrizzleUserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {

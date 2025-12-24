@@ -1,13 +1,10 @@
 import { NextRequest } from 'next/server';
-import { BaseHandler } from './BaseHandler';
-import { AuthService } from '../services/AuthService';
-import { DrizzleUserRepository } from '../repositories/DrizzleUserRepository';
+import { BaseHandler } from '../BaseHandler';
+import { AuthService } from '../../services/AuthService';
+import { DrizzleUserRepository } from '../../repositories/drizzle/DrizzleUserRepository';
+import { AuthValidator } from '../../validators/AuthValidator';
 import { z } from 'zod';
 
-const loginSchema = z.object({
-  email: z.string().email().trim().toLowerCase(),
-  password: z.string(),
-});
 
 export class LoginHandler extends BaseHandler {
   private authService: AuthService;
@@ -28,7 +25,7 @@ export class LoginHandler extends BaseHandler {
 
     try {
       const body = await req.json();
-      const { email, password } = loginSchema.parse(body);
+      const { email, password } = AuthValidator.loginSchema.parse(body);
 
       const result = await this.authService.login(email, password);
 

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { MeHandler } from '@/backend/handlers/MeHandler';
+import { MeHandler } from '@/backend/handlers/auth/MeHandler';
 
 const handler = new MeHandler();
 

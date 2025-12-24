@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { BaseHandler } from '../BaseHandler';
 import { UserService } from '../../services/UserService';
-import { DrizzleUserRepository } from '../../repositories/DrizzleUserRepository';
+import { DrizzleUserRepository } from '../../repositories/drizzle/DrizzleUserRepository';
 import { JWTService } from '../../utils/JWTService';
 
 export class GetProfileHandler extends BaseHandler {
