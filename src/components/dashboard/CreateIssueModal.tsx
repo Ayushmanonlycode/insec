@@ -11,20 +11,29 @@ interface CreateIssueModalProps {
 }
 
 export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModalProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<Partial<Issue>>({
         type: 'VAPT',
-        priority: 'MEDIUM',
-        status: 'OPEN',
+        priority: 'Medium',
+        status: 'Open',
         title: '',
         description: ''
     });
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onCreate(formData);
-        onClose();
+        setIsSubmitting(true);
+        try {
+            await onCreate(formData);
+            onClose();
+        } catch (error) {
+            console.error('Failed to create incident:', error);
+            // Optionally add error state here
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -44,10 +53,12 @@ export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModal
                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1">Title</label>
                         <input
                             required
+                            minLength={5}
                             type="text"
                             placeholder="Brief Directive Title"
-                            className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold tracking-widest text-white focus:outline-none focus:border-[#00FFB2] placeholder:text-white/30"
+                            className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold tracking-widest text-white focus:outline-none focus:border-[#00FFB2] placeholder:text-white/30 disabled:opacity-50"
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -59,9 +70,9 @@ export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModal
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value as IssueType })}
                                 className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold uppercase tracking-widest text-white focus:outline-none focus:border-[#00FFB2] appearance-none cursor-pointer"
                             >
-                                <option>Cloud Security</option>
-                                <option>Redteam Assessment</option>
-                                <option>VAPT</option>
+                                <option value="Cloud Security">Cloud Security</option>
+                                <option value="Redteam Assessment">Redteam Assessment</option>
+                                <option value="VAPT">VAPT</option>
                             </select>
                         </div>
                         <div className="space-y-2">
@@ -71,10 +82,10 @@ export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModal
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                                 className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-bold uppercase tracking-widest text-white focus:outline-none focus:border-[#00FFB2] appearance-none cursor-pointer"
                             >
-                                <option>OPEN</option>
-                                <option>IN PROGRESS</option>
-                                <option>RESOLVED</option>
-                                <option>CLOSED</option>
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Closed">Closed</option>
                             </select>
                         </div>
                     </div>
@@ -82,16 +93,23 @@ export function CreateIssueModal({ isOpen, onClose, onCreate }: CreateIssueModal
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 ml-1">Detailed Log</label>
                         <textarea
+                            required
+                            minLength={10}
                             rows={4}
                             placeholder="Describe the technical findings..."
-                            className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-medium text-white focus:outline-none focus:border-[#00FFB2] placeholder:text-white/30 resize-none"
+                            className="w-full bg-black border border-white/20 rounded-sm py-3 px-4 text-xs font-medium text-white focus:outline-none focus:border-[#00FFB2] placeholder:text-white/30 resize-none disabled:opacity-50"
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            disabled={isSubmitting}
                         />
                     </div>
 
-                    <button type="submit" className="w-full bg-[#00FFB2] text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(0,255,178,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 mt-4">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-[#00FFB2] text-black py-4 rounded-sm font-black uppercase tracking-[0.2em] text-xs shadow-[4px_4px_0px_0px_rgba(0,255,178,0.2)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                         <ShieldCheck size={16} strokeWidth={3} />
-                        Initiate Record
+                        {isSubmitting ? 'Processing Protocol...' : 'Initiate Record'}
                     </button>
                 </form>
             </div>

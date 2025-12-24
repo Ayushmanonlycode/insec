@@ -11,7 +11,7 @@ export abstract class BaseHandler {
   }
 
   protected error(message: string, status = 400, rateLimit?: RateLimitResult) {
-    const response = NextResponse.json({ success: false, error: message }, { status });
+    const response = NextResponse.json({ success: false, message }, { status });
     if (rateLimit) this.setRateLimitHeaders(response, rateLimit);
     return response;
   }
@@ -38,5 +38,19 @@ export abstract class BaseHandler {
     const forwardedFor = req.headers.get('x-forwarded-for');
     if (forwardedFor) return forwardedFor.split(',')[0].trim();
     return '127.0.0.1'; // Fallback
+  }
+
+  protected getAccessToken(req: NextRequest): string | undefined {
+    // 1. Try Cookie
+    const cookieToken = req.cookies.get('accessToken')?.value;
+    if (cookieToken) return cookieToken;
+
+    // 2. Try Authorization Header
+    const authHeader = req.headers.get('Authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+
+    return undefined;
   }
 }

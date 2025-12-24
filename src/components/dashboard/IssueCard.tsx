@@ -11,8 +11,8 @@ import {
 import { cn } from '@/lib/utils';
 
 export type IssueType = 'Cloud Security' | 'Redteam Assessment' | 'VAPT';
-export type IssueStatus = 'OPEN' | 'IN PROGRESS' | 'RESOLVED' | 'CLOSED';
-export type IssuePriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type IssueStatus = 'Open' | 'In Progress' | 'Resolved' | 'Closed';
+export type IssuePriority = 'Low' | 'Medium' | 'High' | 'Critical';
 
 export interface Issue {
     id: string;
@@ -21,7 +21,7 @@ export interface Issue {
     description: string;
     priority: IssuePriority;
     status: IssueStatus;
-    time: string;
+    createdAt: string;
 }
 
 interface IssueCardProps {
@@ -37,8 +37,8 @@ export function IssueCard({ issue, onUpdateStatus, onDelete }: IssueCardProps) {
                 <div className="flex gap-6 items-start">
                     <div className={cn(
                         "mt-1 p-2 rounded-sm border",
-                        issue.priority === 'CRITICAL' ? "border-red-500/50 text-red-500 bg-red-500/5" :
-                            issue.priority === 'HIGH' ? "border-orange-500/50 text-orange-500 bg-orange-500/5" :
+                        issue.priority === 'Critical' ? "border-red-500/50 text-red-500 bg-red-500/5" :
+                            issue.priority === 'High' ? "border-orange-500/50 text-orange-500 bg-orange-500/5" :
                                 "border-white/10 text-white/40 bg-white/5"
                     )}>
                         {issue.type === 'Cloud Security' ? <Cloud size={18} /> :
@@ -60,16 +60,16 @@ export function IssueCard({ issue, onUpdateStatus, onDelete }: IssueCardProps) {
                         <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Priority</div>
                         <div className={cn(
                             "text-[10px] font-black tracking-widest",
-                            issue.priority === 'CRITICAL' ? "text-red-500" :
-                                issue.priority === 'HIGH' ? "text-orange-500" :
+                            issue.priority === 'Critical' ? "text-red-500" :
+                                issue.priority === 'High' ? "text-orange-500" :
                                     "text-white/40"
-                        )}>{issue.priority}</div>
+                        )}>{issue.priority.toUpperCase()}</div>
                     </div>
 
                     <div className="space-y-1">
                         <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Status Update</div>
                         <div className="flex gap-2">
-                            {(['OPEN', 'IN PROGRESS', 'RESOLVED'] as const).map((status) => (
+                            {(['Open', 'In Progress', 'Resolved'] as const).map((status) => (
                                 <button
                                     key={status}
                                     onClick={() => onUpdateStatus(issue.id, status)}
@@ -80,7 +80,7 @@ export function IssueCard({ issue, onUpdateStatus, onDelete }: IssueCardProps) {
                                             : "border-white/5 text-white/20 hover:border-white/20 hover:text-white"
                                     )}
                                 >
-                                    {status}
+                                    {status.toUpperCase()}
                                 </button>
                             ))}
                         </div>

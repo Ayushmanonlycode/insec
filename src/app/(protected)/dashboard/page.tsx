@@ -14,17 +14,28 @@ import { CreateIssueModal } from '@/components/dashboard/CreateIssueModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
 import { useEffect } from 'react';
 
-const INITIAL_ISSUES: Issue[] = [
-    { id: 'SEC-042', type: 'VAPT', title: 'Unhandled Exception in Auth Middleware', priority: 'CRITICAL', status: 'IN PROGRESS', description: 'Vulnerability in auth layer allowing bypass.', time: '2h ago' },
-    { id: 'SEC-039', type: 'Cloud Security', title: 'S3 Bucket Public Access', priority: 'HIGH', status: 'OPEN', description: 'Production bucket has public read permissions.', time: '5h ago' },
-    { id: 'SEC-035', type: 'Redteam Assessment', title: 'Phishing Simulation Report', priority: 'MEDIUM', status: 'RESOLVED', description: 'Results from the Q4 phishing assessment.', time: '12h ago' },
-];
-
 export default function DashboardPage() {
     const [user, setUser] = useState<{ fullName: string } | null>(null);
-    const [issues, setIssues] = useState<Issue[]>(INITIAL_ISSUES);
+    const [issues, setIssues] = useState<Issue[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [filterType, setFilterType] = useState<IssueType | 'ALL'>('ALL');
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchIssues = async () => {
+        setIsLoading(true);
+        try {
+            const url = filterType === 'ALL' ? '/api/issues' : `/api/issues?type=${encodeURIComponent(filterType)}`;
+            const res = await fetch(url);
+            if (res.ok) {
+                const data = await res.json();
+                setIssues(data.data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch issues', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -41,26 +52,62 @@ export default function DashboardPage() {
         fetchUser();
     }, []);
 
-    const handleCreateIssue = (issueData: Partial<Issue>) => {
-        const issue: Issue = {
-            ...issueData as Issue,
-            id: `SEC-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-            time: 'Just now'
-        };
-        setIssues([issue, ...issues]);
+    useEffect(() => {
+        fetchIssues();
+    }, [filterType]);
+
+    const handleCreateIssue = async (issueData: Partial<Issue>) => {
+        try {
+            const res = await fetch('/api/issues', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(issueData),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Verification Error');
+            }
+
+            // Optimistically update the UI with the new issue
+            setIssues(prevIssues => [data.data, ...prevIssues]);
+            alert('Incident Protocol Initiated Successfully');
+
+        } catch (err: any) {
+            console.error('Failed to create issue', err);
+            alert(`Incident Protocol Failed: ${err.message}`);
+            throw err; // Re-throw so modal doesn't close
+        }
     };
 
-    const deleteIssue = (id: string) => {
-        setIssues(issues.filter(i => i.id !== id));
+    const deleteIssue = async (id: string) => {
+        try {
+            const res = await fetch(`/api/issues/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setIssues(issues.filter(i => i.id !== id));
+            }
+        } catch (err) {
+            console.error('Failed to delete issue', err);
+        }
     };
 
-    const updateStatus = (id: string, status: IssueStatus) => {
-        setIssues(issues.map(i => i.id === id ? { ...i, status } : i));
+    const updateStatus = async (id: string, status: IssueStatus) => {
+        try {
+            const res = await fetch(`/api/issues/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status }),
+            });
+            if (res.ok) {
+                setIssues(issues.map(i => i.id === id ? { ...i, status } : i));
+            }
+        } catch (err) {
+            console.error('Failed to update status', err);
+        }
     };
 
-    const filteredIssues = filterType === 'ALL'
-        ? issues
-        : issues.filter(i => i.type === filterType);
+    const filteredIssues = issues;
 
     return (
         <main className="min-h-screen bg-black text-white relative overflow-hidden flex flex-col">
@@ -143,7 +190,7 @@ export default function DashboardPage() {
                                 <div className="relative">
                                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
                                     <input
-                                         type="text"
+                                        type="text"
                                         placeholder="Filter Protocol..."
                                         className="bg-zinc-950 border border-white/10 rounded-sm py-2 pl-9 pr-4 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-[#00FFB2]/50 w-48 transition-all"
                                     />
@@ -153,14 +200,26 @@ export default function DashboardPage() {
 
                         {/* Issues List */}
                         <div className="grid grid-cols-1 gap-4">
-                            {filteredIssues.map((issue) => (
-                                <IssueCard
-                                    key={issue.id}
-                                    issue={issue}
-                                    onUpdateStatus={updateStatus}
-                                    onDelete={deleteIssue}
-                                />
-                            ))}
+                            {isLoading ? (
+                                <div className="flex flex-col items-center justify-center py-20 border border-white/5 bg-zinc-950/20 rounded-sm">
+                                    <div className="w-8 h-8 border-2 border-[#00FFB2]/20 border-t-[#00FFB2] rounded-full animate-spin mb-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Syncing with Command Center...</span>
+                                </div>
+                            ) : filteredIssues.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 border border-white/5 bg-zinc-950/20 rounded-sm">
+                                    <ShieldAlert size={40} className="text-white/10 mb-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">No active incidents detected.</span>
+                                </div>
+                            ) : (
+                                filteredIssues.map((issue) => (
+                                    <IssueCard
+                                        key={issue.id}
+                                        issue={issue}
+                                        onUpdateStatus={updateStatus}
+                                        onDelete={deleteIssue}
+                                    />
+                                ))
+                            )}
                         </div>
                     </div>
 
