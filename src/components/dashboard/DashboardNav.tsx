@@ -25,7 +25,7 @@ export function DashboardNav({ onProfileClick }: { onProfileClick?: () => void }
                 <div className="hidden md:flex items-center gap-8">
                     <a href="/dashboard" className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Console</a>
                     <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">Nodes</a>
-                    <a href="#" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">Directives</a>
+                    <a href="/blogs" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">Directives</a>
                 </div>
             </div>
             <div className="flex items-center gap-6">
