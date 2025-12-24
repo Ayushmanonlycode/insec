@@ -27,4 +27,9 @@ export class DrizzleUserRepository implements IUserRepository {
     const result = await db.insert(users).values(user).returning();
     return result[0];
   }
+
+  async update(id: string, user: Partial<User>): Promise<User> {
+    const result = await db.update(users).set(user).where(eq(users.id, id)).returning();
+    return result[0];
+  }
 }

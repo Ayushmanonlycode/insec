@@ -11,13 +11,15 @@ import { cn } from '@/lib/utils';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import { IssueCard, Issue, IssueType, IssueStatus } from '@/components/dashboard/IssueCard';
 import { CreateIssueModal } from '@/components/dashboard/CreateIssueModal';
+import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
 import { useEffect } from 'react';
 
 export default function DashboardPage() {
-    const [user, setUser] = useState<{ fullName: string } | null>(null);
+    const [user, setUser] = useState<{ fullName: string | null } | null>(null);
     const [issues, setIssues] = useState<Issue[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [filterType, setFilterType] = useState<IssueType | 'ALL'>('ALL');
     const [isLoading, setIsLoading] = useState(true);
 
@@ -120,7 +122,7 @@ export default function DashboardPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(0,255,178,0.05)_0%,transparent_50%)]"></div>
             </div>
 
-            <DashboardNav />
+            <DashboardNav onProfileClick={() => setIsProfileModalOpen(true)} />
 
             <div className="relative z-10 flex-1 p-6 md:p-12 max-w-[1600px] mx-auto w-full space-y-12 pb-24">
                 {/* Header */}
@@ -131,7 +133,7 @@ export default function DashboardPage() {
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Session ID: 8X-929</span>
                         </div>
                         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">
-                            Welcome Back, <br /> <span className="text-white/20">{user?.fullName || 'Agent'}</span>
+                            Welcome Back, <span className="text-white/20">{user?.fullName || 'Agent'}</span>
                         </h1>
                         <div className="flex flex-wrap gap-6 text-[10px] font-bold uppercase tracking-widest text-white/40 pt-2">
                             <div className="flex items-center gap-2">
@@ -233,6 +235,12 @@ export default function DashboardPage() {
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 onCreate={handleCreateIssue}
+            />
+
+            <ProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                onUpdate={(newProfile) => setUser(newProfile)}
             />
         </main>
     );

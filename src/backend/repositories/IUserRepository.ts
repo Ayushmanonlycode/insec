@@ -6,4 +6,5 @@ export interface IUserRepository {
   findByUsername(username: string): Promise<User | null>;
   findByEmailOrUsername(email: string, username: string): Promise<User[]>;
   create(user: NewUser): Promise<User>;
+  update(id: string, user: Partial<User>): Promise<User>;
 }

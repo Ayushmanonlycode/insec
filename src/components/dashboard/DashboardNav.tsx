@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Logo from '@/components/common/Logo';
-import { Search, Bell, LogOut } from 'lucide-react';
+import { Search, Bell, LogOut, UserCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export function DashboardNav() {
+export function DashboardNav({ onProfileClick }: { onProfileClick?: () => void }) {
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -34,9 +34,12 @@ export function DashboardNav() {
                     <Bell size={18} />
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#00FFB2] rounded-full shadow-[0_0_10px_#00FFB2]" />
                 </button>
-                <a href="/profile" className="w-8 h-8 rounded-sm bg-zinc-900 border border-white/10 flex items-center justify-center text-[10px] font-black text-[#00FFB2] hover:border-[#00FFB2]/50 transition-colors">
-                    OP
-                </a>
+                <button
+                    onClick={onProfileClick}
+                    className="w-8 h-8 rounded-sm bg-zinc-900 border border-white/10 flex items-center justify-center text-[10px] font-black text-[#00FFB2] hover:border-[#00FFB2]/50 transition-colors"
+                >
+                    <UserCircle size={20} />
+                </button>
                 <button
                     onClick={handleLogout}
                     className="text-white/40 hover:text-red-500 transition-colors flex items-center gap-2 text-[9px] font-black uppercase tracking-widest pl-4 border-l border-white/5"
