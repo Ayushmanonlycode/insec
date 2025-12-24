@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { User, X, ShieldCheck, UserCircle, Mail, AtSign } from 'lucide-react';
+import { SuccessModal } from '@/components/common/SuccessModal';
 
 interface UserProfile {
     id: string;
@@ -25,6 +26,7 @@ export function ProfileModal({ isOpen, onClose, onUpdate }: ProfileModalProps) {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
 
     useEffect(() => {
         if (isOpen) {
@@ -65,7 +67,11 @@ export function ProfileModal({ isOpen, onClose, onUpdate }: ProfileModalProps) {
             const data = await res.json();
 
             if (res.ok) {
-                alert('Profile protocol updated successfully');
+                setSuccessModal({
+                    isOpen: true,
+                    title: 'Profile Updated',
+                    message: 'Identity protocol has been synced.'
+                });
                 setProfile(data.data);
                 if (onUpdate) onUpdate(data.data);
             } else {
@@ -154,6 +160,13 @@ export function ProfileModal({ isOpen, onClose, onUpdate }: ProfileModalProps) {
                         </button>
                     </form>
                 )}
+
+                <SuccessModal
+                    isOpen={successModal.isOpen}
+                    title={successModal.title}
+                    message={successModal.message}
+                    onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+                />
             </div>
         </div>
     );

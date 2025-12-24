@@ -8,6 +8,7 @@ import { CreateBlogModal } from '@/components/blogs/CreateBlogModal';
 import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
 import Footer from '@/components/layout/Footer';
+import { SuccessModal } from '@/components/common/SuccessModal';
 
 import { useRouter } from 'next/navigation';
 
@@ -19,6 +20,7 @@ export default function BlogsPage() {
     const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
     const [user, setUser] = useState<{ id: string; fullName: string | null } | null>(null);
 
     const fetchBlogs = async () => {
@@ -71,8 +73,18 @@ export default function BlogsPage() {
         if (res.ok) {
             if (isEdit) {
                 setBlogs(prev => prev.map(b => b.id === editingBlog.id ? data.data : b));
+                setSuccessModal({
+                    isOpen: true,
+                    title: 'Directive Updated',
+                    message: 'The intelligence directive has been synchronized.'
+                });
             } else {
                 setBlogs(prev => [data.data, ...prev]);
+                setSuccessModal({
+                    isOpen: true,
+                    title: 'Directive Published',
+                    message: 'New intelligence broadcast is now live.'
+                });
             }
             setEditingBlog(null);
         } else {
@@ -218,6 +230,13 @@ export default function BlogsPage() {
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
                 onUpdate={(newProfile) => setUser(newProfile)}
+            />
+
+            <SuccessModal
+                isOpen={successModal.isOpen}
+                title={successModal.title}
+                message={successModal.message}
+                onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
             />
 
             <Footer variant="minimal" />

@@ -16,6 +16,7 @@ import { ProfileModal } from '@/components/dashboard/ProfileModal';
 import { SystemSidebar } from '@/components/dashboard/SystemSidebar';
 import Footer from '@/components/layout/Footer';
 import { useEffect } from 'react';
+import { SuccessModal } from '@/components/common/SuccessModal';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -27,6 +28,7 @@ export default function DashboardPage() {
     const [filterType, setFilterType] = useState<IssueType | 'ALL'>('ALL');
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
 
     const fetchIssues = async () => {
         setIsLoading(true);
@@ -87,10 +89,18 @@ export default function DashboardPage() {
 
             if (isEdit) {
                 setIssues(prevIssues => prevIssues.map(i => i.id === editingIssue.id ? data.data : i));
-                alert('Incident Protocol Updated Successfully');
+                setSuccessModal({
+                    isOpen: true,
+                    title: 'Incident Updated',
+                    message: 'The protocol has been successfully synchronized.'
+                });
             } else {
                 setIssues(prevIssues => [data.data, ...prevIssues]);
-                alert('Incident Protocol Initiated Successfully');
+                setSuccessModal({
+                    isOpen: true,
+                    title: 'Incident Reported',
+                    message: 'New threat vector has been logged in the system.'
+                });
             }
 
             setEditingIssue(null);
@@ -303,6 +313,13 @@ export default function DashboardPage() {
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
                 onUpdate={(newProfile) => setUser(newProfile)}
+            />
+
+            <SuccessModal
+                isOpen={successModal.isOpen}
+                title={successModal.title}
+                message={successModal.message}
+                onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
             />
         </main>
     );
