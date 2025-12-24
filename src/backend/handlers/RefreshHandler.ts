@@ -2,14 +2,8 @@ import { NextRequest } from 'next/server';
 import { BaseHandler } from './BaseHandler';
 import { AuthService } from '../services/AuthService';
 import { DrizzleUserRepository } from '../repositories/DrizzleUserRepository';
-import { z } from 'zod';
 
-const loginSchema = z.object({
-  email: z.string().email().trim().toLowerCase(),
-  password: z.string(),
-});
-
-export class LoginHandler extends BaseHandler {
+export class RefreshHandler extends BaseHandler {
   private authService: AuthService;
 
   constructor() {
@@ -20,10 +14,13 @@ export class LoginHandler extends BaseHandler {
 
   async handle(req: NextRequest) {
     try {
-      const body = await req.json();
-      const { email, password } = loginSchema.parse(body);
+      const refreshToken = req.cookies.get('refreshToken')?.value;
 
-      const result = await this.authService.login(email, password);
+      if (!refreshToken) {
+        return this.unauthorized('No refresh token provided');
+      }
+
+      const result = await this.authService.refresh(refreshToken);
 
       const response = this.success(result);
       
@@ -31,7 +28,7 @@ export class LoginHandler extends BaseHandler {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 15,
+        maxAge: 60 * 15, // 15 minutes
         path: '/',
       });
 
@@ -39,16 +36,13 @@ export class LoginHandler extends BaseHandler {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 7,
+        maxAge: 60 * 60 * 24 * 7, // 7 days
         path: '/',
       });
 
       return response;
     } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        return this.error(error.issues[0].message, 400);
-      }
-      return this.error(error.message || 'Login failed', 401);
+      return this.unauthorized(error.message || 'Refresh failed');
     }
   }
 }

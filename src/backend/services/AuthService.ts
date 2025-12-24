@@ -43,6 +43,20 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
+  async refresh(token: string) {
+    const payload = JWTService.verifyRefreshToken(token);
+    if (!payload) {
+      throw new Error('Invalid refresh token');
+    }
+
+    const user = await this.userRepository.findById(payload.id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return this.generateAuthResponse(user);
+  }
+
   private generateAuthResponse(user: User) {
     const payload = { id: user.id, email: user.email, username: user.username };
     const accessToken = JWTService.signAccessToken(payload);

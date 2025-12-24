@@ -6,10 +6,10 @@ import { DrizzleUserRepository } from '../repositories/DrizzleUserRepository';
 import { z } from 'zod';
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  username: z.string().min(3).max(50),
+  email: z.string().email().trim().toLowerCase(),
+  username: z.string().min(3).max(50).trim(),
   password: z.string().min(8),
-  fullName: z.string().optional(),
+  fullName: z.string().trim().optional(),
 });
 
 export class RegisterHandler extends BaseHandler {
