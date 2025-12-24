@@ -20,15 +20,14 @@ export class MeHandler extends BaseHandler {
       return this.unauthorized();
     }
 
-    const payload = JWTService.verifyAccessToken(accessToken);
-    if (!payload) {
-      return this.unauthorized('Invalid or expired token');
-    }
-
     try {
+      const payload = JWTService.verifyAccessToken(accessToken);
       const user = await this.userService.getProfile(payload.id);
       return this.success(user);
     } catch (error: any) {
+      if (error.message === 'Token expired' || error.message === 'Invalid token') {
+        return this.unauthorized(error.message);
+      }
       return this.error(error.message || 'User not found', 404);
     }
   }
