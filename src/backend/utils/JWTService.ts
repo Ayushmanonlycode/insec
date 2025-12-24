@@ -5,7 +5,7 @@ export class JWTService {
   private static readonly REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret';
 
   static signAccessToken(payload: any): string {
-    return jwt.sign(payload, this.ACCESS_SECRET, { expiresIn: '15m' });
+    return jwt.sign(payload, this.ACCESS_SECRET, { expiresIn: '1h' });
   }
 
   static signRefreshToken(payload: any): string {
